@@ -1,91 +1,92 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include "utils.h"
 
 #define LINE_SIZE 256
 
-// --- 4. Check Credentials ---
-int checkCredentials(const char* filename, const char* email, const char* password, char* role) {
-    FILE* file = fopen(filename, "r");
-    if (!file) {
-        printf("Error: Could not open %s\n", filename);
-        return 0;
+// // --- 4. Check Credentials ---
+// int checkCredentials(const char* filename, const char* email, const char* password, char* role) {
+//     FILE* file = fopen(filename, "r");
+//     if (!file) {
+//         printf("Error: Could not open %s\n", filename);
+//         return 0;
+//     }
+
+//     char line[LINE_SIZE];
+//     while (fgets(line, sizeof(line), file)) {
+//         char fileEmail[50], filePassword[50], fileRole[20];
+//         int id;
+
+//         // Expected format: id|role|name|email|password|... 
+//         // Adjust strtok parsing depending on your file design
+//         char* token = strtok(line, "|"); // id
+//         if (!token) continue;
+//         id = atoi(token);
+
+//         token = strtok(NULL, "|"); // role
+//         if (!token) continue;
+//         strcpy(fileRole, token);
+
+//         token = strtok(NULL, "|"); // name (skip)
+//         token = strtok(NULL, "|"); // email
+//         if (!token) continue;
+//         strcpy(fileEmail, token);
+
+//         token = strtok(NULL, "|"); // password
+//         if (!token) continue;
+//         strcpy(filePassword, token);
+
+//         // Compare
+//         if (strcmp(fileEmail, email) == 0 && strcmp(filePassword, password) == 0) {
+//             if (role) strcpy(role, fileRole);
+//             fclose(file);
+//             return 1; // Found
+//         }
+//     }
+
+//     fclose(file);
+//     return 0; // Not found
+// }
+
+
+// Returns true if email is valid and unique
+bool emailCheck(const char *email) {
+    // 1. Check format
+    if (strchr(email, '@') == NULL) {
+        printf("❌ Invalid email. Must contain '@'.\n");
+        return false;
     }
 
-    char line[LINE_SIZE];
-    while (fgets(line, sizeof(line), file)) {
-        char fileEmail[50], filePassword[50], fileRole[20];
-        int id;
+    // 2. Files to check
+    const char *files[] = {
+        "data/students.txt",
+        "data/restaurants.txt",
+        "data/delivery.txt"
+    };
+    int fileCount = sizeof(files) / sizeof(files[0]);
 
-        // Expected format: id|role|name|email|password|... 
-        // Adjust strtok parsing depending on your file design
-        char* token = strtok(line, "|"); // id
-        if (!token) continue;
-        id = atoi(token);
+    char line[512];
+    for (int i = 0; i < fileCount; i++) {
+        FILE *fp = fopen(files[i], "r");
+        if (!fp) continue;
 
-        token = strtok(NULL, "|"); // role
-        if (!token) continue;
-        strcpy(fileRole, token);
+        while (fgets(line, sizeof(line), fp)) {
+            char fileEmail[100];
+            // Format: ID|Name|Email|Password|...
+            sscanf(line, "%*d|%*[^|]|%99[^|]|", fileEmail);
 
-        token = strtok(NULL, "|"); // name (skip)
-        token = strtok(NULL, "|"); // email
-        if (!token) continue;
-        strcpy(fileEmail, token);
-
-        token = strtok(NULL, "|"); // password
-        if (!token) continue;
-        strcpy(filePassword, token);
-
-        // Compare
-        if (strcmp(fileEmail, email) == 0 && strcmp(filePassword, password) == 0) {
-            if (role) strcpy(role, fileRole);
-            fclose(file);
-            return 1; // Found
+            if (strcmp(fileEmail, email) == 0) {
+                fclose(fp);
+                printf("❌ Email already exists in %s.\n", files[i]);
+                return false;
+            }
         }
+        fclose(fp);
     }
 
-    fclose(file);
-    return 0; // Not found
-}
-
-
-// --- 6. Check Approval Status ---
-int emailCheck(const char* filename, const char* email) 
-{
-    FILE* file = fopen(filename, "r");
-    if (!file) {
-        printf("Error: Could not open %s\n", filename);
-        return 0;
-    }
-
-    char line[LINE_SIZE];
-    while (fgets(line, sizeof(line), file)) {
-        char fileEmail[50], status[20];
-        char* token;
-
-        token = strtok(line, "|"); // id
-        token = strtok(NULL, "|"); // role
-        token = strtok(NULL, "|"); // name
-        token = strtok(NULL, "|"); // email
-        if (!token) continue;
-        strcpy(fileEmail, token);
-
-        // skip password
-        token = strtok(NULL, "|");
-        token = strtok(NULL, "|"); // phone or location etc.
-        token = strtok(NULL, "|"); // status
-        if (!token) continue;
-        strcpy(status, token);
-
-        if (strcmp(fileEmail, email) == 0) {
-            fclose(file);
-            return (strcmp(status, "Approved") == 0);
-        }
-    }
-
-    fclose(file);
-    return 0; // Not approved or not found
+    return true; // passed all checks
 }
 
 
