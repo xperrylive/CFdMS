@@ -4,6 +4,13 @@
 #include <time.h>
 #include "restaurant.h" 
 
+
+
+
+
+
+
+
 // this function is the main page of the restaurant management 
 int restaurantmain(int restaurantId) {
     int option ;
@@ -39,6 +46,13 @@ int restaurantmain(int restaurantId) {
     return 0;
 }
 
+
+
+
+
+
+
+
 // this function is the main page of the menu item management 
 void menumain(int restaurantId) {
     int option;
@@ -69,6 +83,17 @@ void menumain(int restaurantId) {
     }
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
 
 // this function is responsible for registring restaurants(uses structures and pointers)
 void registerRestaurant() {
@@ -112,6 +137,15 @@ void registerRestaurant() {
 }
 
 
+
+
+
+
+
+
+
+
+
 // function to add menu items 
 void addMenuItem(int restaurantId) {
     struct menuItem newItem ;        //  newItem is being used as a temporary container to hold item details before saving them
@@ -147,6 +181,14 @@ void addMenuItem(int restaurantId) {
 }
 
 
+
+
+
+
+
+
+
+
 // function to view the menu saved i n the menu text file 
 void viewMenu(int restaurantId) {
     struct menuItem item ;       // item is is being used as a temporary container to hold item details before saving them
@@ -174,6 +216,14 @@ void viewMenu(int restaurantId) {
     }
     fclose(fp) ;        // closes the file and saves changes 
 }
+
+
+
+
+
+
+
+
 
 
 // function to update any menu item  
@@ -229,6 +279,16 @@ void updateMenuItem(int restaurantId) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
 // function for deleting menu items 
 void deleteMenuItem(int restaurantId) {
     int itemID, found = 0;
@@ -267,6 +327,16 @@ void deleteMenuItem(int restaurantId) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
 // function to track the inventory and low stock warnings 
 void trackInventory(int restaurantId) {
     const int LOW_STOCK_THRESHOLD = 10 ;     // setting the 10 to be the number to consider an item to be low in stock
@@ -290,6 +360,13 @@ void trackInventory(int restaurantId) {
     fclose(fp);
 }
 
+
+
+
+
+
+
+
 // this is a helper function to the price of a menu item
 float getPriceForMenuItem(int menuId) {
     FILE *fp = fopen("data/menus.txt", "r");
@@ -306,45 +383,49 @@ float getPriceForMenuItem(int menuId) {
 }
 
 
-// function to provide the sales report form each day (using an external library = time)
+
+
+
+
+
+
+
+// function to provide the sales report form each day (using an external library = time + malloc and pointers)
 void dailySalesReport(int restaurantId) {
-    char report_date[12];
-    FILE *fp;
+    char report_date[12] ;      // variable for date 
+    FILE *fp ;
     int menu_count = 0;
-    char ch;
+    char ch ;
 
     printf("\nEnter the date for the sales report (YYYY-MM-DD): ");
     fgets(report_date, 12, stdin);
-    report_date[strcspn(report_date, "\n")] = '\0';
-    
-    fp = fopen("data/menus.txt", "r");
+    report_date[strcspn(report_date, "\n")] = '\0' ;
+    fp = fopen("data/menus.txt", "r") ;
     if (fp == NULL) {
         printf("Error: Could not open menu file.\n");
         return;
     }
-    while ((ch = fgetc(fp)) != EOF) {
+    while ((ch = fgetc(fp)) != EOF) {       //  counts the no. of menu items
         if (ch == '\n') {
             menu_count++;
         }
     }
-    fclose(fp);
+    fclose(fp) ;
 
     if (menu_count == 0) {
         printf("No menu items found.\n");
         return;
     }
-
-    typedef struct {
+    typedef struct {        // local struct that holds the menu item's ID and its price
         int menuId;
         float price;
-    } MenuItemPrice;
+    } MenuItemPrice ;
     
-    MenuItemPrice *menuPrices = (MenuItemPrice*) malloc(menu_count * sizeof(MenuItemPrice));
+    MenuItemPrice *menuPrices = (MenuItemPrice*) malloc(menu_count * sizeof(MenuItemPrice));        // uses malloc(dynamic memory) to store the ID and cost of each
     if (menuPrices == NULL) {
         printf("Error: Memory allocation failed.\n");
-        return;
+        return ;
     }
-    
     fp = fopen("data/menus.txt", "r");
     struct menuItem tempItem;
     for (int i = 0; i < menu_count; i++) {
@@ -352,12 +433,12 @@ void dailySalesReport(int restaurantId) {
         menuPrices[i].menuId = tempItem.menuId;
         menuPrices[i].price = tempItem.price;
     }
-    fclose(fp);
+    fclose(fp) ;
 
     fp = fopen("data/orders.txt", "r");
     if (fp == NULL) {
         printf("Error: Could not open orders file.\n");
-        free(menuPrices);
+        free(menuPrices) ;
         return;
     }
 
@@ -366,7 +447,7 @@ void dailySalesReport(int restaurantId) {
         char status[20], date[11];
     } local_order;
     
-    float total_sales = 0.0;
+    float total_sales = 0.0 ;
     int orders_today = 0;
 
     printf("\n--- Daily Sales Report for %s ---\n", report_date);
@@ -389,69 +470,83 @@ void dailySalesReport(int restaurantId) {
     printf("Total Revenue: RM %.2f\n", total_sales);
     printf("---------------------------------------\n");
 
-    free(menuPrices);
+    free(menuPrices);       //the free keyword deallocates the memory that was reserved by malloc for the menuPrices
 }
 
+
+
+
+
+
+
+
+
+
+
+
+// function for order queue management 
 void orderQueue(int restaurantId) {
-    OrderNode *head = NULL, *current = NULL, *newNode = NULL, *tail = NULL;
-    FILE *fp;
+    OrderNode *head = NULL, *current = NULL, *newNode = NULL, *tail = NULL;     // this first part loads the file into a linked list (consists of those 4 pointers)
+    FILE *fp ;
 
     fp = fopen("data/orders.txt", "r");
     if (fp == NULL) { /* ... */ return; }
+    // while loop that reads the entire file into memory
     while (!feof(fp)) {
-        newNode = (OrderNode*) malloc(sizeof(OrderNode));
+        newNode = (OrderNode*) malloc(sizeof(OrderNode));       // this malloc reserves a new chunk of memory big enough to hold one orderthen the address of this memory is stored in newNode.
         if (fscanf(fp, "%d|%d|%d|%d|%d|%[^|]|%[^\n]\n", &newNode->orderID, &newNode->studentID, &newNode->restaurantId, &newNode->menuId, &newNode->quantity, newNode->status, newNode->date) == 7) {
             newNode->next = NULL;
             if (head == NULL) {
-                head = newNode;
+                head = newNode ;
                 tail = newNode;
             } else {
                 tail->next = newNode;
-                tail = newNode;
+                tail = newNode ;
             }
         } else {
-            free(newNode);
+            free(newNode) ;
             break;
         }
     }
     fclose(fp);
 
-    printf("\n--- Pending Orders (Your Queue) ---\n");
-    int found_pending = 0;
+    printf("\n--- Pending Orders (Your Queue) ---\n");      // the 2nd part of this function displays the queue and requests user input
+    int found_pending = 0 ;
     current = head;
     while (current != NULL) {
         if (current->restaurantId == restaurantId && strcmp(current->status, "Pending") == 0) {
             printf("Order ID: %d, Menu ID: %d, Quantity: %d\n", current->orderID, current->menuId, current->quantity);
-            found_pending = 1;
+            found_pending = 1 ;
         }
         current = current->next;
     }
     if (!found_pending) {
-        printf("The order queue is empty.\n");
+        printf("The order queue is empty.\n") ;
         while(head != NULL) {
             OrderNode *temp = head;
-            head = head->next;
-            free(temp);
+            head = head->next ;
+            free(temp) ;
         }
         return;
     }
 
     int targetOrderID;
-    char newStatus[20];
+    char newStatus[20] ;
     printf("\nEnter the ID of the order to process: ");
     scanf("%d", &targetOrderID);
-    getchar();
+    getchar() ;
 
     printf("Enter the new status: ");
     fgets(newStatus, 20, stdin);
-    newStatus[strcspn(newStatus, "\n")] = '\0';
+    newStatus[strcspn(newStatus, "\n")] = '\0' ;
     
+    // this last part updates the order and saves it back to file 
     current = head;
-    int found_target = 0;
+    int found_target = 0 ;
     while (current != NULL) {
         if (current->orderID == targetOrderID && current->restaurantId == restaurantId) {
             strcpy(current->status, newStatus);
-            found_target = 1;
+            found_target = 1 ;
             break;
         }
         current = current->next;
@@ -460,21 +555,21 @@ void orderQueue(int restaurantId) {
     if (found_target) {
         fp = fopen("data/orders.txt", "w");
         if (fp == NULL) { /* ... */ return; }
-        current = head;
+        current = head ;
         while (current != NULL) {
             fprintf(fp, "%d|%d|%d|%d|%d|%s|%s\n", current->orderID, current->studentID, current->restaurantId, current->menuId, current->quantity, current->status, current->date);
             current = current->next;
         }
         fclose(fp);
-        printf("\nOrder #%d updated successfully.\n", targetOrderID);
+        printf("\nOrder #%d updated successfully.\n", targetOrderID) ;
     } else {
         printf("\nError: Order #%d not found.\n", targetOrderID);
     }
 
     current = head;
     while(current != NULL) {
-        OrderNode *temp = current;
+        OrderNode *temp = current ;
         current = current->next;
-        free(temp);
+        free(temp) ;
     }
 }
