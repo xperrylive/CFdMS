@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "utils.h"
+#include "student/student.h"
 
 
 void displayMainMenu();
@@ -10,19 +11,6 @@ void registerUser();
 void registrationMenu();
 void studentRegistration();
 void loginUser();
-
-
-typedef struct 
-{
-    int id;
-    char name[50];
-    char email[100];
-    char password[100];
-    char address[256];
-    char phone_number[20];
-    double balance;
-
-}student;
 
 
 
@@ -91,7 +79,7 @@ void loginUser()
                 // adminMenu();
 
             } else if (strcmp(result.role, "student") == 0) {
-            // harsh write your main menu function here
+                studentMainMenu(result.id);
     
             } else if (strcmp(result.role, "restaurant") == 0) {
                 restaurantmain(result.id);
@@ -162,7 +150,7 @@ void registerUser()
 
 void studentRegistration()
 {
-    student s;
+    Student s; 
     char buffer[256];
     
     // Name
