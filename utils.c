@@ -6,49 +6,81 @@
 
 #define LINE_SIZE 256
 
-// // --- 4. Check Credentials ---
-// int checkCredentials(const char* filename, const char* email, const char* password, char* role) {
-//     FILE* file = fopen(filename, "r");
-//     if (!file) {
-//         printf("Error: Could not open %s\n", filename);
-//         return 0;
-//     }
+// --- 4. Check Credentials ---
+struct loginResult checkCredentials(const char* email, const char* password) 
+{
+    struct loginResult result = {1, -1, ""}; // default
 
-//     char line[LINE_SIZE];
-//     while (fgets(line, sizeof(line), file)) {
-//         char fileEmail[50], filePassword[50], fileRole[20];
-//         int id;
+    const char *files[] = {
+        "data/admin.txt", 
+        "data/students.txt",
+        "data/restaurants.txt",
+        "data/delivery.txt" 
+    };
 
-//         // Expected format: id|role|name|email|password|... 
-//         // Adjust strtok parsing depending on your file design
-//         char* token = strtok(line, "|"); // id
-//         if (!token) continue;
-//         id = atoi(token);
+    const char *role[] = {
+        "admin",
+        "student",
+        "restaurant",
+        "delivery"
+    };
+    int fileCount = sizeof(files) / sizeof(files[0]);
+    
+    char line[256];
+    char *token;
+    userDetials user;
 
-//         token = strtok(NULL, "|"); // role
-//         if (!token) continue;
-//         strcpy(fileRole, token);
+    for (int i = 0; i < fileCount; i++)
+    {
+        FILE *fp = fopen(files[i], "r");
+        if (!fp) continue;
+        while(fgets(line, sizeof(line), fp))
+        {
+            token = strtok(line, "|");  // ID
+            if (!token) continue;       // skips wrong formatted lines
+            user.id = atoi(token);
+            
+            
+            token = strtok(NULL, "|");  // Name
+            if (!token) continue;
+            strcpy(user.name, token);
+            user.name[strcspn(user.name, "\n")] = '\0';  
 
-//         token = strtok(NULL, "|"); // name (skip)
-//         token = strtok(NULL, "|"); // email
-//         if (!token) continue;
-//         strcpy(fileEmail, token);
+            token = strtok(NULL, "|");  // Email
+            if (!token) continue;       
+            strcpy(user.email, token);
+            user.email[strcspn(user.email, "\n")] = '\0';   
 
-//         token = strtok(NULL, "|"); // password
-//         if (!token) continue;
-//         strcpy(filePassword, token);
+            token = strtok(NULL, "|");  // Password
+            if (!token) continue;
+            strcpy(user.password, token);
+            user.password[strcspn(user.password, "\n")] = '\0';
 
-//         // Compare
-//         if (strcmp(fileEmail, email) == 0 && strcmp(filePassword, password) == 0) {
-//             if (role) strcpy(role, fileRole);
-//             fclose(file);
-//             return 1; // Found
-//         }
-//     }
-
-//     fclose(file);
-//     return 0; // Not found
-// }
+            if (strcmp(user.email, email) == 0)
+            {
+                if (strcmp(user.password, password) == 0)
+                {
+                    fclose(fp);                    
+                    result.status = 0;
+                    result.id = user.id;
+                    strcpy(result.role, role[i]);
+                    return result;   //successful 
+                }
+                else 
+                {
+                    fclose(fp);
+                    result.status = 2;   // wrong password
+                    return result;
+                }
+            }
+            else continue;
+        }
+        fclose(fp);
+    }
+    result.status = 1;   // email not found
+    return result;
+}
+ 
 
 
 // Returns true if email is valid and unique
@@ -63,7 +95,8 @@ bool emailCheck(const char *email) {
     const char *files[] = {
         "data/students.txt",
         "data/restaurants.txt",
-        "data/delivery.txt"
+        "data/delivery.txt",
+        "data/admin.txt"
     };
     int fileCount = sizeof(files) / sizeof(files[0]);
 
