@@ -1,0 +1,221 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "student.h"
+#include "utils.h"
+
+#define STUDENT_FILE "data/students.txt"
+#define MENU_FILE "data/menus.txt"
+#define ORDER_FILE "data/orders.txt"
+
+// ---------------- Student Main Menu ----------------
+void studentMainMenu(int studentID) {
+    int choice;
+    char buffer[10];
+
+    while (1) {
+        printf("\n===== Student Menu =====\n");
+        printf("1. View Profile\n");
+        printf("2. Update Profile\n");
+        printf("3. Delete Profile\n");
+        printf("4. Place Order\n");
+        printf("5. View Order History\n");
+        printf("6. Manage Balance\n");
+        printf("7. Logout\n");
+        printf("Enter your choice: ");
+
+        fgets(buffer, sizeof(buffer), stdin);
+        choice = atoi(buffer);
+
+        switch (choice) {
+            case 1: viewProfile(studentID); break;
+            case 2: updateProfile(studentID); break;
+            case 3: deleteProfile(studentID); return; // exit to main menu after deleting
+            case 4: placeOrder(studentID); break;
+            case 5: viewOrderHistory(studentID); break;
+            case 6: manageBalance(studentID); break;
+            case 7: printf("Logging out...\n"); return;
+            default: printf("Invalid choice. Try again.\n");
+        }
+    }
+}
+
+// ---------------- View Profile ----------------
+void viewProfile(int studentID) {
+    FILE *fp = fopen(STUDENT_FILE, "r");
+    if (!fp) {
+        printf("Error opening file!\n");
+        return;
+    }
+
+    Student s;
+    while (fscanf(fp, "%d|%49[^|]|%99[^|]|%99[^|]|%lf|%19[^|]|%255[^\n]\n",
+                  &s.id, s.name, s.email, s.password,
+                  &s.balance, s.phone_number, s.address) == 7) {
+        if (s.id == studentID) {
+            printf("\n--- Student Profile ---\n");
+            printf("ID: %d\nName: %s\nEmail: %s\nBalance: %.2f\nPhone: %s\nAddress: %s\n",
+                   s.id, s.name, s.email, s.balance, s.phone_number, s.address);
+            fclose(fp);
+            return;
+        }
+    }
+
+    fclose(fp);
+    printf("Student not found!\n");
+}
+
+// ---------------- Update Profile ----------------
+void updateProfile(int studentID) {
+    FILE *fp = fopen(STUDENT_FILE, "r");
+    FILE *temp = fopen("data/temp.txt", "w");
+    if (!fp || !temp) {
+        printf("Error opening file!\n");
+        return;
+    }
+
+    Student s;
+    while (fscanf(fp, "%d|%49[^|]|%99[^|]|%99[^|]|%lf|%19[^|]|%255[^\n]\n",
+                  &s.id, s.name, s.email, s.password,
+                  &s.balance, s.phone_number, s.address) == 7) {
+        if (s.id == studentID) {
+            printf("Updating profile for %s\n", s.name);
+            printf("Enter New Name: "); fgets(s.name, sizeof(s.name), stdin); s.name[strcspn(s.name, "\n")] = 0;
+            printf("Enter New Phone: "); fgets(s.phone_number, sizeof(s.phone_number), stdin); s.phone_number[strcspn(s.phone_number, "\n")] = 0;
+            printf("Enter New Address: "); fgets(s.address, sizeof(s.address), stdin); s.address[strcspn(s.address, "\n")] = 0;
+        }
+        fprintf(temp, "%d|%s|%s|%s|%.2f|%s|%s\n",
+                s.id, s.name, s.email, s.password,
+                s.balance, s.phone_number, s.address);
+    }
+
+    fclose(fp);
+    fclose(temp);
+    remove(STUDENT_FILE);
+    rename("data/temp.txt", STUDENT_FILE);
+
+    printf("Profile updated!\n");
+}
+
+// ---------------- Delete Profile ----------------
+void deleteProfile(int studentID) {
+    FILE *fp = fopen(STUDENT_FILE, "r");
+    FILE *temp = fopen("data/temp.txt", "w");
+    if (!fp || !temp) {
+        printf("Error opening file!\n");
+        return;
+    }
+
+    Student s;
+    int found = 0;
+    while (fscanf(fp, "%d|%49[^|]|%99[^|]|%99[^|]|%lf|%19[^|]|%255[^\n]\n",
+                  &s.id, s.name, s.email, s.password,
+                  &s.balance, s.phone_number, s.address) == 7) {
+        if (s.id == studentID) {
+            found = 1;
+            continue; // skip writing
+        }
+        fprintf(temp, "%d|%s|%s|%s|%.2f|%s|%s\n",
+                s.id, s.name, s.email, s.password,
+                s.balance, s.phone_number, s.address);
+    }
+
+    fclose(fp);
+    fclose(temp);
+    remove(STUDENT_FILE);
+    rename("data/temp.txt", STUDENT_FILE);
+
+    if (found) printf("Profile deleted!\n");
+    else printf("Student not found!\n");
+}
+
+// ---------------- Place Order ----------------
+void placeOrder(int studentID) {
+    FILE *menu = fopen(MENU_FILE, "r");
+    if (!menu) {
+        printf("Error opening menus file!\n");
+        return;
+    }
+
+    printf("\n--- Available Menu ---\n");
+    int menuID, restID, stock;
+    char item[50];
+    double price;
+
+    while (fscanf(menu, "%d|%d|%49[^|]|%lf|%d\n",
+                  &menuID, &restID, item, &price, &stock) == 5) {
+        printf("%d) %s - RM %.2f (Stock: %d)\n", menuID, item, price, stock);
+    }
+    fclose(menu);
+
+    int choice = getInt("Enter Menu ID to order: ", 1, 9999);
+    int qty = getInt("Enter Quantity: ", 1, 10);
+
+    FILE *fp = fopen(ORDER_FILE, "a");
+    if (!fp) {
+        printf("Error opening orders file!\n");
+        return;
+    }
+
+    int orderID = generateNewID(ORDER_FILE, "order");
+    fprintf(fp, "%d|%d|%d|%d|%d|Pending|2025-08-21\n",
+            orderID, studentID, restID, choice, qty);
+    fclose(fp);
+
+    printf("Order placed successfully! Order ID: %d\n", orderID);
+}
+
+// ---------------- View Order History ----------------
+void viewOrderHistory(int studentID) {
+    FILE *fp = fopen(ORDER_FILE, "r");
+    if (!fp) {
+        printf("Error opening orders file!\n");
+        return;
+    }
+
+    printf("\n--- Order History ---\n");
+    int orderID, sID, restID, menuID, qty;
+    char status[20], date[20];
+    while (fscanf(fp, "%d|%d|%d|%d|%d|%19[^|]|%19[^\n]\n",
+                  &orderID, &sID, &restID, &menuID, &qty, status, date) == 7) {
+        if (sID == studentID) {
+            printf("Order %d | Menu %d | Qty %d | %s | %s\n",
+                   orderID, menuID, qty, status, date);
+        }
+    }
+    fclose(fp);
+}
+
+// ---------------- Manage Balance ----------------
+void manageBalance(int studentID) {
+    FILE *fp = fopen(STUDENT_FILE, "r");
+    FILE *temp = fopen("data/temp.txt", "w");
+    if (!fp || !temp) {
+        printf("Error opening file!\n");
+        return;
+    }
+
+    Student s;
+    while (fscanf(fp, "%d|%49[^|]|%99[^|]|%99[^|]|%lf|%19[^|]|%255[^\n]\n",
+                  &s.id, s.name, s.email, s.password,
+                  &s.balance, s.phone_number, s.address) == 7) {
+        if (s.id == studentID) {
+            double amount;
+            printf("Current Balance: RM %.2f\n", s.balance);
+            printf("Enter amount to add: ");
+            scanf("%lf", &amount);
+            getchar();
+            s.balance += amount;
+        }
+        fprintf(temp, "%d|%s|%s|%s|%.2f|%s|%s\n",
+                s.id, s.name, s.email, s.password,
+                s.balance, s.phone_number, s.address);
+    }
+
+    fclose(fp);
+    fclose(temp);
+    remove(STUDENT_FILE);
+    rename("data/temp.txt", STUDENT_FILE);
+
+    printf("Balance updated!\n");
+}
