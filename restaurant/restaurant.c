@@ -4,13 +4,6 @@
 #include <time.h>
 #include "restaurant.h" 
 
-
-
-
-
-
-
-
 // this function is the main page of the restaurant management 
 int restaurantmain(int restaurantId) {
     int option ;
@@ -46,13 +39,6 @@ int restaurantmain(int restaurantId) {
     return 0;
 }
 
-
-
-
-
-
-
-
 // this function is the main page of the menu item management 
 void menumain(int restaurantId) {
     int option;
@@ -83,17 +69,6 @@ void menumain(int restaurantId) {
     }
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
 
 // this function is responsible for registring restaurants(uses structures and pointers)
 void registerRestaurant() {
@@ -137,15 +112,6 @@ void registerRestaurant() {
 }
 
 
-
-
-
-
-
-
-
-
-
 // function to add menu items 
 void addMenuItem(int restaurantId) {
     struct menuItem newItem ;        //  newItem is being used as a temporary container to hold item details before saving them
@@ -181,14 +147,6 @@ void addMenuItem(int restaurantId) {
 }
 
 
-
-
-
-
-
-
-
-
 // function to view the menu saved i n the menu text file 
 void viewMenu(int restaurantId) {
     struct menuItem item ;       // item is is being used as a temporary container to hold item details before saving them
@@ -216,14 +174,6 @@ void viewMenu(int restaurantId) {
     }
     fclose(fp) ;        // closes the file and saves changes 
 }
-
-
-
-
-
-
-
-
 
 
 // function to update any menu item  
@@ -279,16 +229,6 @@ void updateMenuItem(int restaurantId) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
 // function for deleting menu items 
 void deleteMenuItem(int restaurantId) {
     int itemID, found = 0;
@@ -327,16 +267,6 @@ void deleteMenuItem(int restaurantId) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
 // function to track the inventory and low stock warnings 
 void trackInventory(int restaurantId) {
     const int LOW_STOCK_THRESHOLD = 10 ;     // setting the 10 to be the number to consider an item to be low in stock
@@ -360,13 +290,6 @@ void trackInventory(int restaurantId) {
     fclose(fp);
 }
 
-
-
-
-
-
-
-
 // this is a helper function to the price of a menu item
 float getPriceForMenuItem(int menuId) {
     FILE *fp = fopen("data/menus.txt", "r");
@@ -381,13 +304,6 @@ float getPriceForMenuItem(int menuId) {
     fclose(fp);
     return 0;
 }
-
-
-
-
-
-
-
 
 
 // function to provide the sales report form each day (using an external library = time)
@@ -475,18 +391,6 @@ void dailySalesReport(int restaurantId) {
 
     free(menuPrices);
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 void orderQueue(int restaurantId) {
     OrderNode *head = NULL, *current = NULL, *newNode = NULL, *tail = NULL;

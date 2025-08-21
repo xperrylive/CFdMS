@@ -13,7 +13,7 @@ typedef struct {
 
 // Student functionalities
 void studentMainMenu(int studentID);
-
+void studentRegistration();
 void viewProfile(int studentID);
 void updateProfile(int studentID);
 void deleteProfile(int studentID);

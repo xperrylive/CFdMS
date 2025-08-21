@@ -40,6 +40,70 @@ void studentMainMenu(int studentID) {
     }
 }
 
+// ---------------- Student Registration  ----------------
+
+void studentRegistration()
+{
+    Student s; 
+    char buffer[256];
+    
+    // Name
+    printf("Enter your name: ");
+    fgets(buffer, sizeof(buffer), stdin);
+    buffer[strcspn(buffer, "\n")] = '\0';
+    strcpy(s.name, buffer);
+    
+    // Email (Unique)
+    do {
+        printf("Enter your email: ");
+        fgets(buffer, sizeof(buffer), stdin);
+        buffer[strcspn(buffer, "\n")] = '\0';
+        strcpy(s.email, buffer);
+    } while (!emailCheck(s.email));
+    
+    
+    // Password
+    printf("Enter your password: ");
+    fgets(buffer, sizeof(buffer), stdin);
+    buffer[strcspn(buffer, "\n")] = '\0';
+    strcpy(s.password, buffer);
+    
+    // Address
+    printf("Enter your address: ");
+    fgets(buffer, sizeof(buffer), stdin);
+    buffer[strcspn(buffer, "\n")] = '\0';
+    strcpy(s.address, buffer);
+    
+    // Phone
+    printf("Enter your phone number: ");
+    fgets(buffer, sizeof(buffer), stdin);
+    buffer[strcspn(buffer, "\n")] = '\0';
+    strcpy(s.phone_number, buffer);
+    
+    // Balance (numeric input)
+    printf("Enter your initial balance: ");
+    fgets(buffer, sizeof(buffer), stdin);
+    s.balance = atof(buffer);   // atof converts string -> double
+    
+    //generate new id
+    s.id = generateNewID("data/students.txt", "student");
+    
+    FILE *fp = fopen("data/students.txt", "a");
+    if (!fp) 
+    {
+        printf("Error while opening the file.\n");
+        return;
+    }
+    
+    fprintf( fp, "%d|%s|%s|%s|%.2f|%s|%s\n", 
+        s.id, s.name, s.email, s.password, s.balance, s.phone_number, s.address
+    );
+    fclose(fp);
+    printf("\nYou have been registered successfully! Your ID is %d\n", s.id);
+}
+
+
+
 // ---------------- View Profile ----------------
 void viewProfile(int studentID) {
     FILE *fp = fopen(STUDENT_FILE, "r");
