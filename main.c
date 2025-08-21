@@ -94,7 +94,7 @@ void loginUser()
             // harsh write your main menu function here
     
             } else if (strcmp(result.role, "restaurant") == 0) {
-                restraurantMenu(result.id);
+                restaurantmain(result.id);
     
             } else if (strcmp(result.role, "delivery") == 0) {
                 // zakaryia write your main menu function here
@@ -139,7 +139,7 @@ void registerUser()
     
         else if (choice == 2)
         {
-            // write your code to register restaurants (only call the function from your file)
+            registerRestaurant() ;// write your code to register restaurants (only call the function from your file)
             return;
         }
         else if (choice == 3)

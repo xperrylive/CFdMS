@@ -133,6 +133,7 @@ void registerRestaurant() {
     fprintf(fp, "%d|%s|%s|%s|%s|%s\n", newRestu.restaurantId, newRestu.name, newRestu.email, newRestu.password, newRestu.location, newRestu.phone); // adding all the info to the restaurants file
     fclose(fp);
     printf("\n'%s' was registered successfully with ID %d!\n", newRestu.name, newRestu.restaurantId) ;
+
 }
 
 
