@@ -94,7 +94,7 @@ void loginUser()
             // harsh write your main menu function here
     
             } else if (strcmp(result.role, "restaurant") == 0) {
-                restraurantMenu(result.id)
+                restraurantMenu(result.id);
     
             } else if (strcmp(result.role, "delivery") == 0) {
                 // zakaryia write your main menu function here
