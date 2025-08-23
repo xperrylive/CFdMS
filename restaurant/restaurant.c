@@ -165,7 +165,11 @@ void addMenuItem(int restaurantId) {
     newItem.itemName[strcspn(newItem.itemName, "\n")] = '\0';
 
     printf("Enter Price (RM): ");
-    scanf("%f", &newItem.price);
+    // only a float can be added
+    while (scanf("%f", &newItem.price) != 1) {
+        printf("Invalid input. Please enter a number for the price (e.g., 7.50): ");
+        while (getchar() != '\n');
+    }
     getchar();
 
     printf("Enter Initial Stock Quantity: ") ;
@@ -203,7 +207,7 @@ void viewMenu(int restaurantId) {
 
     // below here a while loop is being used to read the menu file line by line until the end of the file so they can be printed and viewed
     int found = 0;
-    while (fscanf(fp, "%d|%d|%[^|]|%f|%d\n", &item.menuId, &item.restaurantId, &item.itemName, &item.price, &item.stock) != EOF) {
+    while (fscanf(fp, "%d|%d|%[^|]|%f|%d\n", &item.menuId, &item.restaurantId, &item.itemName, &item.price, &item.stock) == 5) {
         if (item.restaurantId == restaurantId) {
             printf("%-5d %-25s %-10.2f %-10d\n", item.menuId, item.itemName, item.price, item.stock);
             found = 1 ;
@@ -253,8 +257,10 @@ void updateMenuItem(int restaurantId) {
             printf("Enter new item name: ");
             fgets(item.itemName, 100, stdin) ;
             item.itemName[strcspn(item.itemName, "\n")] = '\0';
-            printf("Enter new price: ") ;
-            scanf("%f", &item.price);
+            while (scanf("%f", &item.price) != 1) {
+                printf("Invalid input. Please enter a number for the price (e.g., 7.50): ");
+                while (getchar() != '\n');
+            }
             getchar() ;
             printf("Enter new stock: ");
             scanf("%d", &item.stock) ;
@@ -345,7 +351,7 @@ void trackInventory(int restaurantId) {
     printf("\n--- Inventory Status (Low Stock Alert below %d items) ---\n", LOW_STOCK_THRESHOLD) ;
     int found_low_stock = 0 ;
     // while loop to read the file line by line until the end  
-    while (fscanf(fp, "%d|%d|%[^|]|%f|%d\n", &item.menuId, &item.restaurantId, &item.itemName, &item.price, &item.stock) != EOF) {
+    while (fscanf(fp, "%d|%d|%[^|]|%f|%d\n", &item.menuId, &item.restaurantId, &item.itemName, &item.price, &item.stock) == 5) {
         if (item.restaurantId == restaurantId) {        // checks if the item is from the correct restaurant
             if (item.stock < LOW_STOCK_THRESHOLD) {     // then checks if it's lower than 10 
                 printf("! ALERT: '%s' is low on stock (%d remaining).\n", item.itemName, item.stock) ;      // if yes it prints this warning 
@@ -481,61 +487,109 @@ void dailySalesReport(int restaurantId) {
 
 
 
+// helper function to update the stock of a menu item
+void updateStock(int menuId, int quantitySold) {
+    FILE *fp, *tempFp;
+    struct menuItem item;
+
+    fp = fopen("data/menus.txt", "r");
+    tempFp = fopen("data/temp_menus.txt", "w");
+
+    if (fp == NULL || tempFp == NULL) {
+        printf("Error: Could not open menu files for stock update.\n");
+        if(fp) fclose(fp);
+        if(tempFp) fclose(tempFp);
+        return;
+    }
+
+    // Read from the original file, modify if necessary, and write to the temp file
+    while (fscanf(fp, "%d|%d|%[^|]|%f|%d\n", &item.menuId, &item.restaurantId, item.itemName, &item.price, &item.stock) == 5) {
+        // If this is the item whose stock we need to update
+        if (item.menuId == menuId) {
+            item.stock -= quantitySold; // Subtract the quantity sold
+            if (item.stock < 0) {
+                item.stock = 0; // Ensure stock doesn't go below zero
+            }
+        }
+        // Write the (potentially updated) item to the temporary file
+        fprintf(tempFp, "%d|%d|%s|%.2f|%d\n", item.menuId, item.restaurantId, item.itemName, item.price, item.stock);
+    }
+
+    fclose(fp);
+    fclose(tempFp);
+
+    // Replace the old menu file with the updated one
+    remove("data/menus.txt");
+    rename("data/temp_menus.txt", "data/menus.txt");
+}
 
 
-// function for order queue management 
+
+
+
+
+
+
+
+
+
+
+
+
+
+// function for order queue management with stock subtraction
 void orderQueue(int restaurantId) {
-    OrderNode *head = NULL, *current = NULL, *newNode = NULL, *tail = NULL;     // this first part loads the file into a linked list (consists of those 4 pointers)
+    OrderNode *head = NULL, *current = NULL, *newNode = NULL, *tail = NULL;      // this first part loads the file into a linked list (consists of those 4 pointers)
     FILE *fp ;
 
     fp = fopen("data/orders.txt", "r");
     if (fp == NULL) { /* ... */ return; }
     // while loop that reads the entire file into memory
     while (!feof(fp)) {
-        newNode = (OrderNode*) malloc(sizeof(OrderNode));       // this malloc reserves a new chunk of memory big enough to hold one orderthen the address of this memory is stored in newNode.
+        newNode = (OrderNode*) malloc(sizeof(OrderNode));      // this malloc reserves a new chunk of memory big enough to hold one orderthen the address of this memory is stored in newNode.
         if (fscanf(fp, "%d|%d|%d|%d|%d|%[^|]|%[^\n]\n", &newNode->orderID, &newNode->studentID, &newNode->restaurantId, &newNode->menuId, &newNode->quantity, newNode->status, newNode->date) == 7) {
             newNode->next = NULL;
             if (head == NULL) {
                 head = newNode ;
-                tail = newNode;
+                tail = newNode ;
             } else {
                 tail->next = newNode;
                 tail = newNode ;
             }
         } else {
-            free(newNode) ;
-            break;
+            free(newNode);
+            break ;
         }
     }
     fclose(fp);
 
-    printf("\n--- Pending Orders (Your Queue) ---\n");      // the 2nd part of this function displays the queue and requests user input
-    int found_pending = 0 ;
-    current = head;
+    printf("\n--- Pending Orders (Your Queue) ---\n") ;      // the 2nd part of this function displays the queue and requests user input
+    int found_pending = 0;
+    current = head ;
     while (current != NULL) {
         if (current->restaurantId == restaurantId && strcmp(current->status, "Pending") == 0) {
             printf("Order ID: %d, Menu ID: %d, Quantity: %d\n", current->orderID, current->menuId, current->quantity);
-            found_pending = 1 ;
+            found_pending = 1  ;
         }
         current = current->next;
     }
     if (!found_pending) {
-        printf("The order queue is empty.\n") ;
+        printf("The order queue is empty.\n");
         while(head != NULL) {
             OrderNode *temp = head;
             head = head->next ;
-            free(temp) ;
+            free(temp);
         }
         return;
     }
 
     int targetOrderID;
-    char newStatus[20] ;
-    printf("\nEnter the ID of the order to process: ");
-    scanf("%d", &targetOrderID);
+    char newStatus[20];
+    printf("\nEnter the ID of the order to process: ") ;
+    scanf("%d", &targetOrderID) ;
     getchar() ;
 
-    printf("Enter the new status: ");
+    printf("Enter the new status (Perpaing/Ready For Delievery/Completed): ");
     fgets(newStatus, 20, stdin);
     newStatus[strcspn(newStatus, "\n")] = '\0' ;
     
@@ -544,11 +598,20 @@ void orderQueue(int restaurantId) {
     int found_target = 0 ;
     while (current != NULL) {
         if (current->orderID == targetOrderID && current->restaurantId == restaurantId) {
-            strcpy(current->status, newStatus);
+            strcpy(current->status, newStatus) ;
             found_target = 1 ;
+
+            
+            // If the order is being processed (not just pending), update the stock.
+            if (strcmp(newStatus, "Pending") != 0) {
+                updateStock(current->menuId, current->quantity);
+                printf("Stock for Menu ID %d has been updated.\n", current->menuId) ;
+            }
+            
+
             break;
         }
-        current = current->next;
+        current = current->next ;
     }
     
     if (found_target) {
@@ -560,15 +623,15 @@ void orderQueue(int restaurantId) {
             current = current->next;
         }
         fclose(fp);
-        printf("\nOrder #%d updated successfully.\n", targetOrderID) ;
+        printf("\nOrder #%d updated successfully.\n", targetOrderID);
     } else {
-        printf("\nError: Order #%d not found.\n", targetOrderID);
+        printf("\nError: Order #%d not found.\n", targetOrderID) ;
     }
 
-    current = head;
+    current = head ;
     while(current != NULL) {
-        OrderNode *temp = current ;
-        current = current->next;
+        OrderNode *temp = current;
+        current = current->next ;
         free(temp) ;
     }
 }
