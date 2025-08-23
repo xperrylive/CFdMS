@@ -97,10 +97,7 @@ void registerRestaurant() {
     struct restaurant newRestu ;             // newRestu is a temporary holder of information(email,name,etc..) for the new restaurant. it also uses the structure restaurant as it's data type
     FILE *fp;       // this is a file pointer that holds the address of the file info when it's opened 
     
-    newRestu.restaurantId = generateNewID("data/restaurants.txt", "restaurant");    // using the generateNewID from the utils.c file to automatically generate the next available ID for a "restaurant".
-
-    printf("\n--- New Restaurant Registration ---\n");
-    printf("Your new Restaurant ID is: %d\n", newRestu.restaurantId);
+    printf("\n---  Restaurant Application ---\n");
 
     printf("Enter Restaurant Name: ") ;
     fgets(newRestu.name, 100, stdin);
@@ -124,14 +121,14 @@ void registerRestaurant() {
     fgets(newRestu.phone, 20, stdin);
     newRestu.phone[strcspn(newRestu.phone, "\n")] = '\0' ;
 
-    fp = fopen("data/restaurants.txt", "a");
+    fp = fopen("data/applications.txt", "a");
     if (fp == NULL) {
-        printf("Error: Could not open restaurants.txt for writing.\n");
+        printf("Error: Could not open applications.txt for writing.\n");
         return;
     }
-    fprintf(fp, "%d|%s|%s|%s|%s|%s\n", newRestu.restaurantId, newRestu.name, newRestu.email, newRestu.password, newRestu.location, newRestu.phone); // adding all the info to the restaurants file
+    fprintf(fp, "%s|%s|%s|%s|%s|restaurant\n", newRestu.name, newRestu.email, newRestu.password, newRestu.location, newRestu.phone); // adding all the info to the restaurants file
     fclose(fp);
-    printf("\n'%s' was registered successfully with ID %d!\n", newRestu.name, newRestu.restaurantId) ;
+    printf("\n'%s' was applied successfully!\n", newRestu.name) ;
 
 }
 
@@ -217,7 +214,8 @@ void viewMenu(int restaurantId) {
     if (!found) {   // if it's not found(found == 0)
         printf("No menu items found for this restaurant.\n");
     }
-    fclose(fp) ;        // closes the file and saves changes 
+    fclose(fp) ;        // closes the file and saves changes
+    return; 
 }
 
 
@@ -616,7 +614,7 @@ void orderQueue(int restaurantId) {
     
     if (found_target) {
         fp = fopen("data/orders.txt", "w");
-        if (fp == NULL) { /* ... */ return; }
+        if (fp == NULL) { return; }
         current = head ;
         while (current != NULL) {
             fprintf(fp, "%d|%d|%d|%d|%d|%s|%s\n", current->orderID, current->studentID, current->restaurantId, current->menuId, current->quantity, current->status, current->date);

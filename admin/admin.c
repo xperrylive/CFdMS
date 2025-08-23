@@ -414,12 +414,9 @@ void approveApplication() {
 
         char *token;
         char role[20], name[100], fileEmail[100], password[100];
-        char extra1[200], extra2[100];
+        char phone[200], location[100];
 
         token = strtok(line, "|"); if (!token) continue;
-        strcpy(role, token);
-
-        token = strtok(NULL, "|"); if (!token) continue;
         strcpy(name, token);
 
         token = strtok(NULL, "|"); if (!token) continue;
@@ -429,10 +426,13 @@ void approveApplication() {
         strcpy(password, token);
 
         token = strtok(NULL, "|"); if (!token) continue;
-        strcpy(extra1, token);
+        strcpy(location, token);
 
-        token = strtok(NULL, "|"); if (!token) strcpy(extra2, ""); 
-        else strcpy(extra2, token);
+        token = strtok(NULL, "|"); if (!token) continue;
+        strcpy(phone, token);
+
+        token = strtok(NULL, "|"); if (!token) continue;
+        strcpy(role, token);
 
         if (strcmp(fileEmail, email) == 0) {
             found = 1;
@@ -443,7 +443,7 @@ void approveApplication() {
                 FILE *restFile = fopen("data/restaurants.txt", "a");
                 if (restFile) {
                     fprintf(restFile, "%d|%s|%s|%s|%s|%s\n",
-                            newId, name, fileEmail, password, extra1, extra2);
+                            newId, name, fileEmail, password, location, phone);
                     fclose(restFile);
                     printf("Application approved → added to restaurants.\n");
                 }
@@ -452,7 +452,7 @@ void approveApplication() {
                 FILE *delFile = fopen("data/delivery.txt", "a");
                 if (delFile) {
                     fprintf(delFile, "%d|%s|%s|%s|%s\n",
-                            newId, name, fileEmail, password, extra2);
+                            newId, name, fileEmail, password, phone);
                     fclose(delFile);
                     printf("Application approved → added to delivery.\n");
                 }
@@ -461,7 +461,7 @@ void approveApplication() {
             }
         } else {
             fprintf(temp, "%s|%s|%s|%s|%s|%s\n", 
-                    role, name, fileEmail, password, extra1, extra2);
+                    role, name, fileEmail, password, location, phone);
         }
     }
 
