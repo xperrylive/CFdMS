@@ -6,7 +6,7 @@ void adminMenu();
 
 // --- Sub Menus ---
 void userManagementMenu();
-void applicationsMenu();
+void applicationManagementMenu();
 void backupRestoreMenu();
 
 // --- User Management ---

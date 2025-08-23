@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include "utils.h"
 #include "student/student.h"
+#include "restaurant/restaurant.h"
+#include "admin/admin.h"
 
 
 void displayMainMenu();
@@ -75,7 +77,7 @@ void loginUser()
     
             // Redirect based on role
             if (strcmp(result.role, "admin") == 0) {
-                // adminMenu();
+                adminMenu();
 
             } else if (strcmp(result.role, "student") == 0) {
                 studentMainMenu(result.id);

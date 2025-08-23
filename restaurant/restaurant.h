@@ -31,6 +31,7 @@ float getPriceForMenuItem(int menuId);
 
 // Main feature functions
 void registerRestaurant();
+void restaurantmain(int restaurantId);
 void menumain(int restaurantId);
 void addMenuItem(int restaurantId);
 void viewMenu(int restaurantId);

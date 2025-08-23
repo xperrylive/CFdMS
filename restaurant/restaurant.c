@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <time.h>
 #include "restaurant.h" 
+#include "C:\Users\saadm\Desktop\Programming\CFdMS\utils.h" 
 
 
 
@@ -12,7 +14,7 @@
 
 
 // this function is the main page of the restaurant management 
-int restaurantmain(int restaurantId) {
+void restaurantmain(int restaurantId) {
     int option ;
     while (1) {
         printf("\n--- Restaurant Management ---\n");
@@ -43,7 +45,7 @@ int restaurantmain(int restaurantId) {
             printf("Invalid option... Please try again.\n");
         }
     }
-    return 0;
+    return;
 }
 
 
@@ -81,7 +83,7 @@ void menumain(int restaurantId) {
             printf("Invalid Option.... Please try again.\n");
         }
     }
-    return 0;
+    return;
 }
 
 
@@ -109,9 +111,11 @@ void registerRestaurant() {
     fgets(newRestu.name, 100, stdin);
     newRestu.name[strcspn(newRestu.name, "\n")] = '\0';         // anywhere strcspn and ='\0' is used: to remove \n the fgets always includes and then proeperly ends the string
 
-    printf("Enter Email: ");
-    fgets(newRestu.email, 100, stdin);
-    newRestu.email[strcspn(newRestu.email, "\n")] = '\0';
+    do{ printf("Enter Email: ");
+        fgets(newRestu.email, 100, stdin);
+        newRestu.email[strcspn(newRestu.email, "\n")] = '\0';
+    } while (!emailCheck(newRestu.email));
+    
 
     printf("Enter Password: ");
     fgets(newRestu.password, 50, stdin);
