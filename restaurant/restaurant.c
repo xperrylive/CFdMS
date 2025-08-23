@@ -1,11 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 #include <time.h>
 #include "restaurant.h" 
-#include "C:\Users\saadm\Desktop\Programming\CFdMS\utils.h" 
-
+#include "../utils.h"
 
 
 

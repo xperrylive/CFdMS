@@ -3,8 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include "admin.h"
-#include "C:\Users\saadm\Desktop\Programming\CFdMS\utils.h"
-
+#include "../utils.h"
 #define LINE_SIZE 256
 
 void adminMenu() {
