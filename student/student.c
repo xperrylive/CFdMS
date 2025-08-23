@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "student.h"
-#include "C:\Users\saadm\Desktop\Programming\CFdMS\utils.h"
+#include "utils.h"
 
 #define STUDENT_FILE "data/students.txt"
 #define MENU_FILE "data/menus.txt"
@@ -213,8 +213,14 @@ void placeOrder(int studentID) {
     }
     fclose(menu);
 
-    // int choice = getInt("Enter Menu ID to order: ", 1, 9999);
-    // int qty = getInt("Enter Quantity: ", 1, 10);
+    int choice, qty;
+
+    printf("Enter Menu ID to order: ");
+    scanf("%d", &choice);
+
+    printf("Enter Quantity: ");
+    scanf("%d", &qty);
+
 
     FILE *fp = fopen(ORDER_FILE, "a");
     if (!fp) {
