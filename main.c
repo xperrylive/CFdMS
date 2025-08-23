@@ -81,6 +81,7 @@ void loginUser()
 
             } else if (strcmp(result.role, "student") == 0) {
                 studentMainMenu(result.id);
+                return; // return to main menu after student logs out
     
             } else if (strcmp(result.role, "restaurant") == 0) {
                 restaurantmain(result.id);

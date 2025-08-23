@@ -139,15 +139,42 @@ void updateProfile(int studentID) {
     }
 
     Student s;
+    char buffer[256];
+    int found = 0;
+
     while (fscanf(fp, "%d|%49[^|]|%99[^|]|%99[^|]|%lf|%19[^|]|%255[^\n]\n",
                   &s.id, s.name, s.email, s.password,
                   &s.balance, s.phone_number, s.address) == 7) {
         if (s.id == studentID) {
+            found = 1;
             printf("Updating profile for %s\n", s.name);
-            printf("Enter New Name: "); fgets(s.name, sizeof(s.name), stdin); s.name[strcspn(s.name, "\n")] = 0;
-            printf("Enter New Phone: "); fgets(s.phone_number, sizeof(s.phone_number), stdin); s.phone_number[strcspn(s.phone_number, "\n")] = 0;
-            printf("Enter New Address: "); fgets(s.address, sizeof(s.address), stdin); s.address[strcspn(s.address, "\n")] = 0;
+
+            // New name
+            printf("Enter New Name (leave empty to keep current): ");
+            fgets(buffer, sizeof(buffer), stdin);
+            buffer[strcspn(buffer, "\n")] = 0; // strip newline
+            if (strlen(buffer) > 0) {
+                strcpy(s.name, buffer);  // update only if user typed something
+            }
+
+            // New phone
+            printf("Enter New Phone (leave empty to keep current): ");
+            fgets(buffer, sizeof(buffer), stdin);
+            buffer[strcspn(buffer, "\n")] = 0;
+            if (strlen(buffer) > 0) {
+                strcpy(s.phone_number, buffer);
+            }
+
+            // New address
+            printf("Enter New Address (leave empty to keep current): ");
+            fgets(buffer, sizeof(buffer), stdin);
+            buffer[strcspn(buffer, "\n")] = 0;
+            if (strlen(buffer) > 0) {
+                strcpy(s.address, buffer);
+            }
         }
+
+        // Always write updated record
         fprintf(temp, "%d|%s|%s|%s|%.2f|%s|%s\n",
                 s.id, s.name, s.email, s.password,
                 s.balance, s.phone_number, s.address);
@@ -158,8 +185,13 @@ void updateProfile(int studentID) {
     remove(STUDENT_FILE);
     rename("data/temp.txt", STUDENT_FILE);
 
-    printf("Profile updated!\n");
+    if (found)
+        printf("Profile updated!\n");
+    else
+        printf("Student ID %d not found!\n", studentID);
 }
+
+
 
 // ---------------- Delete Profile ----------------
 void deleteProfile(int studentID) {
@@ -270,11 +302,21 @@ void manageBalance(int studentID) {
                   &s.id, s.name, s.email, s.password,
                   &s.balance, s.phone_number, s.address) == 7) {
         if (s.id == studentID) {
-            double amount;
+            int amount;
             printf("Current Balance: RM %.2f\n", s.balance);
-            printf("Enter amount to add: ");
-            scanf("%lf", &amount);
-            getchar();
+
+            // input validation loop (integer only)
+            while (1) {
+                printf("Enter amount to add (integer only): ");
+                if (scanf("%d", &amount) == 1) {
+                    if (amount >= 0) break;  // valid int
+                    else printf("Amount must be positive.\n");
+                } else {
+                    printf("Invalid input. Please enter a number.\n");
+                }
+                while (getchar() != '\n'); // clear buffer
+            }
+            getchar(); // consume leftover newline
             s.balance += amount;
         }
         fprintf(temp, "%d|%s|%s|%s|%.2f|%s|%s\n",
@@ -289,3 +331,4 @@ void manageBalance(int studentID) {
 
     printf("Balance updated!\n");
 }
+
