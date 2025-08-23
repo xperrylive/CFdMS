@@ -20,8 +20,7 @@ void restaurantmain(int restaurantId) {
         printf("2. Order Queue Management\n") ;
         printf("3. Daily Sales Reporting\n");
         printf("4. Inventory tracking\n");
-        printf("5. Register New Restaurant\n") ;
-        printf("6. Exit\n");
+        printf("5. Exit\n");
         printf("Please select an option: ");
         scanf("%d", &option) ;
         getchar(); // it helps scanf(with numbers/intgers) + fgets (strings) by acting like a clean up setup as it consumes the newline
@@ -35,8 +34,6 @@ void restaurantmain(int restaurantId) {
         } else if (option == 4) {
             trackInventory(restaurantId);
         } else if (option == 5) {
-            registerRestaurant();
-        } else if (option == 6) {
             printf("Exiting program.\n");
             break;
         } else {

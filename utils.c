@@ -86,7 +86,7 @@ struct loginResult checkCredentials(const char* email, const char* password)
 bool emailCheck(const char *email) {
     // 1. Check format
     if (strchr(email, '@') == NULL) {
-        printf("❌ Invalid email. Must contain '@'.\n");
+        printf(" Invalid email. Must contain '@'.\n");
         return false;
     }
 
@@ -111,7 +111,7 @@ bool emailCheck(const char *email) {
 
             if (strcmp(fileEmail, email) == 0) {
                 fclose(fp);
-                printf("❌ Email already exists in %s.\n", files[i]);
+                printf(" Email already exists.\n");
                 return false;
             }
         }
