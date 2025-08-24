@@ -87,7 +87,7 @@ void loginUser()
                 restaurantmain(result.id);
     
             } else if (strcmp(result.role, "delivery") == 0) {
-                // zakaryia write your main menu function here
+                deliveryMainMenu(result.id);
             }
             else{
                 printf("something went wrong. please contatct the administration regarding your role.\n");
