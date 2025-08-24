@@ -134,7 +134,7 @@ void registerUser()
         }
         else if (choice == 3)
         {
-            // write your code to register delivery personnel (only call the function from your file)
+            registerDeliveryPerson();
             return;
         }
         else if (choice == 4) return;
