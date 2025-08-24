@@ -36,7 +36,8 @@ void updateDeliveryStatus(int deliveryID);
 void viewPerformance(int deliveryID);
 void calculateEarnings(int deliveryID);
 
-// Your main menu for delivery (to connect with main.c)
+// main menu for delivery
 void deliveryMainMenu(int deliveryID);
 
 #endif
+
