@@ -8,6 +8,7 @@ typedef struct {
     char password[20];
     char phone[15];
     char vehicle[20];
+    char status[20];
 } DeliveryPerson;
 
 typedef struct {
@@ -30,14 +31,11 @@ typedef struct {
 
 // Required functions
 void registerDeliveryPerson();
-int loginDeliveryPerson();
 void assignOrder();
 void updateDeliveryStatus(int deliveryID);
 void viewPerformance(int deliveryID);
 void calculateEarnings(int deliveryID);
-
-// main menu for delivery
+//main menu for delivery
 void deliveryMainMenu(int deliveryID);
 
 #endif
-
