@@ -11,7 +11,7 @@ typedef struct {
 } userDetials;
 
 struct loginResult {
-    int status; // 0 success, 1 wrong email, 2 wrong password
+    int status; // 0 success, 1 wrong email, 2 wrong password, 3 account waiting for approval
     int id;
     char role[10];
 };

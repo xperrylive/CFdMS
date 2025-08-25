@@ -80,8 +80,10 @@ struct loginResult checkCredentials(const char* email, const char* password)
     FILE *applications = fopen("data/applications.txt", "r");
     if (applications) {
         while (fgets(line, sizeof(line), applications)) {
+            line[strcspn(line, "\n")] = '\0';
+
             char *roleApp, *nameApp, *emailApp, *passApp, *extra1, *extra2;
-            nameApp = strtok(line, "|");
+            nameApp = strtok(line, "|"); 
             emailApp = strtok(NULL, "|");
             passApp = strtok(NULL, "|");
             extra1= strtok(NULL, "|");
@@ -91,7 +93,6 @@ struct loginResult checkCredentials(const char* email, const char* password)
             if (emailApp && strcmp(emailApp, email) == 0) {
                 fclose(applications);
                 result.status = 3;   // pending / not activated
-                strcpy(result.role, roleApp ? roleApp : "pending");
                 return result;
             }
         }
