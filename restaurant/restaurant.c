@@ -594,7 +594,7 @@ void orderQueue(int restaurantId) {
     scanf("%d", &targetOrderID) ;
     getchar() ;
 
-    printf("Enter the new status (Perpaing/Ready For Delievery/Completed): ");
+    printf("Enter the new status (Perpaing/Ready For Delievery/Delivered): ");
     fgets(newStatus, 20, stdin);
     newStatus[strcspn(newStatus, "\n")] = '\0' ;
     
