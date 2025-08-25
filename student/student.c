@@ -40,10 +40,8 @@ void studentMainMenu(int studentID) {
     }
 }
 
-// ---------------- Student Registration  ----------------
-
-void studentRegistration()
-{
+// ---------------- Student Registration ----------------
+void studentRegistration() {
     Student s; 
     char buffer[256];
     
@@ -60,7 +58,6 @@ void studentRegistration()
         buffer[strcspn(buffer, "\n")] = '\0';
         strcpy(s.email, buffer);
     } while (!emailCheck(s.email));
-    
     
     // Password
     printf("Enter your password: ");
@@ -85,24 +82,21 @@ void studentRegistration()
     fgets(buffer, sizeof(buffer), stdin);
     s.balance = atof(buffer);   // atof converts string -> double
     
-    //generate new id
+    // Generate new id
     s.id = generateNewID("data/students.txt", "student");
     
-    FILE *fp = fopen("data/students.txt", "a");
-    if (!fp) 
-    {
+    FILE *fp = fopen(STUDENT_FILE, "a");
+    if (!fp) {
         printf("Error while opening the file.\n");
         return;
     }
     
-    fprintf( fp, "%d|%s|%s|%s|%.2f|%s|%s\n", 
+    fprintf(fp, "%d|%s|%s|%s|%.2f|%s|%s\n", 
         s.id, s.name, s.email, s.password, s.balance, s.phone_number, s.address
     );
     fclose(fp);
     printf("\nYou have been registered successfully! Your ID is %d\n", s.id);
 }
-
-
 
 // ---------------- View Profile ----------------
 void viewProfile(int studentID) {
@@ -152,9 +146,21 @@ void updateProfile(int studentID) {
             // New name
             printf("Enter New Name (leave empty to keep current): ");
             fgets(buffer, sizeof(buffer), stdin);
-            buffer[strcspn(buffer, "\n")] = 0; // strip newline
+            buffer[strcspn(buffer, "\n")] = 0;
             if (strlen(buffer) > 0) {
-                strcpy(s.name, buffer);  // update only if user typed something
+                strcpy(s.name, buffer);
+            }
+
+            // New email
+            printf("Enter New Email (leave empty to keep current): ");
+            fgets(buffer, sizeof(buffer), stdin);
+            buffer[strcspn(buffer, "\n")] = 0;
+            if (strlen(buffer) > 0) {
+                if (emailCheck(buffer)) {
+                    strcpy(s.email, buffer);
+                } else {
+                    printf("Email already exists. Keeping old email.\n");
+                }
             }
 
             // New phone
@@ -190,8 +196,6 @@ void updateProfile(int studentID) {
     else
         printf("Student ID %d not found!\n", studentID);
 }
-
-
 
 // ---------------- Delete Profile ----------------
 void deleteProfile(int studentID) {
@@ -252,7 +256,6 @@ void placeOrder(int studentID) {
     printf("Enter Quantity: ");
     scanf("%d", &qty);
 
-
     FILE *fp = fopen(ORDER_FILE, "a");
     if (!fp) {
         printf("Error opening orders file!\n");
@@ -305,11 +308,10 @@ void manageBalance(int studentID) {
             int amount;
             printf("Current Balance: RM %.2f\n", s.balance);
 
-            // input validation loop (integer only)
             while (1) {
                 printf("Enter amount to add (integer only): ");
                 if (scanf("%d", &amount) == 1) {
-                    if (amount >= 0) break;  // valid int
+                    if (amount >= 0) break;
                     else printf("Amount must be positive.\n");
                 } else {
                     printf("Invalid input. Please enter a number.\n");
@@ -331,4 +333,3 @@ void manageBalance(int studentID) {
 
     printf("Balance updated!\n");
 }
-
