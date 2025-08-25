@@ -71,16 +71,46 @@ void studentRegistration() {
     buffer[strcspn(buffer, "\n")] = '\0';
     strcpy(s.address, buffer);
     
-    // Phone
-    printf("Enter your phone number: ");
-    fgets(buffer, sizeof(buffer), stdin);
-    buffer[strcspn(buffer, "\n")] = '\0';
-    strcpy(s.phone_number, buffer);
+    // Phone (digits only)
+    while (1) {
+        printf("Enter your phone number: ");
+        fgets(buffer, sizeof(buffer), stdin);
+        buffer[strcspn(buffer, "\n")] = '\0';
+
+        int valid = 1;
+        for (int i = 0; buffer[i] != '\0'; i++) {
+            if (buffer[i] < '0' || buffer[i] > '9') {
+                valid = 0;
+                break;
+            }
+        }
+
+        if (valid && strlen(buffer) > 0) {
+            strcpy(s.phone_number, buffer);
+            break;
+        } else {
+            printf("Invalid phone number. Digits only.\n");
+        }
+    }
+
     
-    // Balance (numeric input)
-    printf("Enter your initial balance: ");
-    fgets(buffer, sizeof(buffer), stdin);
-    s.balance = atof(buffer);   // atof converts string -> double
+    // Balance (numeric input with validation)
+    while (1) {
+        printf("Enter your initial balance: ");
+        fgets(buffer, sizeof(buffer), stdin);
+        buffer[strcspn(buffer, "\n")] = '\0';
+
+        char *endptr;
+        s.balance = strtod(buffer, &endptr);
+
+        // Check if entire string was a valid number
+        if (endptr != buffer && *endptr == '\0' && s.balance >= 0) {
+            break; // valid input
+        } else {
+            printf("Invalid input. Please enter a valid number.\n");
+        }
+    }
+
     
     // Generate new id
     s.id = generateNewID("data/students.txt", "student");
