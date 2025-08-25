@@ -102,6 +102,8 @@ void loginUser()
         else if (result.status == 3) 
         {
             printf("Your account is still pending approval by the admin.\n");
+            return;
+
         }
         else 
         {
