@@ -2,12 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include "delivery.h"
-#include "utils.h"
+#include "../utils.h"
 
-#define DELIVERY_FILE "./data/delivery.txt"
-#define ORDERS_FILE   "./data/orders.txt"
-#define DELIVERIES_FILE "./data/deliveries.txt"
-#define APPLICATIONS_FILE "./data/applications.txt"
+#define DELIVERY_FILE "data/delivery.txt"
+#define ORDERS_FILE   "data/orders.txt"
+#define DELIVERIES_FILE "data/deliveries.txt"
+#define APPLICATIONS_FILE "data/applications.txt"
 
 void registerDeliveryPerson() {
     DeliveryPerson dp;
@@ -47,6 +47,7 @@ void registerDeliveryPerson() {
 
     printf("Delivery Person application submitted successfully.\n");
     printf("Your application is pending admin approval.\n");
+    return;
 }
 
 void assignOrder() {
