@@ -170,11 +170,11 @@ void addMenuItem(int restaurantId) {
     getchar();
 
     printf("Enter Initial Stock Quantity: ") ;
-    while (scanf("%d", &newItem.stock) != 1) {
+    while (scanf("%d", &newItem.stock) != 1) {
         printf("Invalid input. Please enter a whole number for the stock: ");
         while (getchar() != '\n');
     }
-    getchar() ;
+    getchar() ;
 
     fprintf(fp, "%d|%d|%s|%.2f|%d\n", newItem.menuId, newItem.restaurantId, newItem.itemName, newItem.price, newItem.stock);    // adding all the info to the menu file
     fclose(fp);         // closes the file and saves changes
@@ -264,7 +264,7 @@ void updateMenuItem(int restaurantId) {
             }
             getchar() ;
             printf("Enter new stock: ");
-            while (scanf("%d", &item.stock) != 1) {
+            while (scanf("%d", &item.stock) != 1) {
                 printf("Invalid input. Please enter a whole number for the stock: ");
                 while (getchar() != '\n');
             }
