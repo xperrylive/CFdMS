@@ -12,9 +12,6 @@
 void registerDeliveryPerson() {
     DeliveryPerson dp;
     
-    // Generate new ID
-    dp.deliveryPersonID = generateNewID(APPLICATIONS_FILE, "delivery");
-    
     printf("Name: "); 
     fgets(dp.name, 50, stdin); 
     dp.name[strcspn(dp.name,"\n")] = 0;
@@ -30,11 +27,11 @@ void registerDeliveryPerson() {
     fgets(dp.password, 20, stdin); 
     dp.password[strcspn(dp.password,"\n")] = 0;
     
-    printf("Vehicle Type (motorcycle/car/bicycle): "); 
-    fgets(dp.vehicle, 20, stdin); 
-    dp.vehicle[strcspn(dp.vehicle,"\n")] = 0;
+    printf("Phone: "); 
+    fgets(dp.phone, 15, stdin); 
+    dp.phone[strcspn(dp.phone,"\n")] = 0;
     
-    
+    // Set default status
     strcpy(dp.status, "pending");
 
     FILE *fp = fopen(APPLICATIONS_FILE, "a");
@@ -48,7 +45,7 @@ void registerDeliveryPerson() {
         dp.name, dp.email, dp.password, dp.status, dp.phone);
     fclose(fp);
 
-    printf("Delivery Person application submitted with ID %d\n", dp.deliveryPersonID);
+    printf("Delivery Person application submitted successfully.\n");
     printf("Your application is pending admin approval.\n");
 }
 
@@ -82,7 +79,6 @@ void assignOrder() {
         return;
     }
     
-    // Get delivery person ID and order ID to assign
     int dpID, orderID;
     printf("\nEnter your DeliveryPerson ID: ");
     scanf("%d", &dpID); 
