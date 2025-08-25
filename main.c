@@ -6,6 +6,7 @@
 #include "student/student.h"
 #include "restaurant/restaurant.h"
 #include "admin/admin.h"
+#include "delivery/delivery.h"
 
 
 void displayMainMenu();
@@ -98,7 +99,11 @@ void loginUser()
         else if (result.status == 2) 
         {
             printf("Wrong password. Try again (%d/3 attempts left).\n", 3 - attempt);
-        } 
+        }
+        else if (result.status == 3) 
+        {
+            printf("Your account is still pending approval by the admin.\n");
+        }
         else 
         {
             printf("Email not found. Try again (%d/3 attempts left).\n", 3 - attempt);

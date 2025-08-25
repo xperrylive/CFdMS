@@ -8,7 +8,7 @@
 // --- 4. Check Credentials ---
 struct loginResult checkCredentials(const char* email, const char* password) 
 {
-    struct loginResult result = {1, -1, ""}; // default
+    struct loginResult result = {1, -1, ""}; // default = email not found
 
     const char *files[] = {
         "data/admin.txt", 
@@ -29,28 +29,28 @@ struct loginResult checkCredentials(const char* email, const char* password)
     char *token;
     userDetials user;
 
+    // --- check normal active accounts ---
     for (int i = 0; i < fileCount; i++)
     {
         FILE *fp = fopen(files[i], "r");
         if (!fp) continue;
         while(fgets(line, sizeof(line), fp))
         {
-            token = strtok(line, "|");  // ID
-            if (!token) continue;       // skips wrong formatted lines
+            token = strtok(line, "|");  
+            if (!token) continue;
             user.id = atoi(token);
             
-            
-            token = strtok(NULL, "|");  // Name
+            token = strtok(NULL, "|");  
             if (!token) continue;
             strcpy(user.name, token);
             user.name[strcspn(user.name, "\n")] = '\0';  
 
-            token = strtok(NULL, "|");  // Email
+            token = strtok(NULL, "|");  
             if (!token) continue;       
             strcpy(user.email, token);
             user.email[strcspn(user.email, "\n")] = '\0';   
 
-            token = strtok(NULL, "|");  // Password
+            token = strtok(NULL, "|");  
             if (!token) continue;
             strcpy(user.password, token);
             user.password[strcspn(user.password, "\n")] = '\0';
@@ -63,7 +63,7 @@ struct loginResult checkCredentials(const char* email, const char* password)
                     result.status = 0;
                     result.id = user.id;
                     strcpy(result.role, role[i]);
-                    return result;   //successful 
+                    return result;   // successful login
                 }
                 else 
                 {
@@ -72,13 +72,36 @@ struct loginResult checkCredentials(const char* email, const char* password)
                     return result;
                 }
             }
-            else continue;
         }
         fclose(fp);
     }
-    result.status = 1;   // email not found
+
+    // --- check pending applications ---
+    FILE *applications = fopen("data/applications.txt", "r");
+    if (applications) {
+        while (fgets(line, sizeof(line), applications)) {
+            char *roleApp, *nameApp, *emailApp, *passApp, *extra1, *extra2;
+            nameApp = strtok(line, "|");
+            emailApp = strtok(NULL, "|");
+            passApp = strtok(NULL, "|");
+            extra1= strtok(NULL, "|");
+            extra2= strtok(NULL, "|");
+            roleApp= strtok(NULL, "|");
+
+            if (emailApp && strcmp(emailApp, email) == 0) {
+                fclose(applications);
+                result.status = 3;   // pending / not activated
+                strcpy(result.role, roleApp ? roleApp : "pending");
+                return result;
+            }
+        }
+        fclose(applications);
+    }
+
+    result.status = 1;   // email not found anywhere
     return result;
 }
+
  
 
 
