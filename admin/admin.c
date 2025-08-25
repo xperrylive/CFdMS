@@ -414,7 +414,7 @@ void approveApplication() {
 
         char *token;
         char role[20], name[100], fileEmail[100], password[100];
-        char phone[200], location[100];
+        char extra1[200], extra2[100];
 
         token = strtok(line, "|"); if (!token) continue;
         strcpy(name, token);
@@ -426,10 +426,10 @@ void approveApplication() {
         strcpy(password, token);
 
         token = strtok(NULL, "|"); if (!token) continue;
-        strcpy(location, token);
+        strcpy(extra1, token);
 
         token = strtok(NULL, "|"); if (!token) continue;
-        strcpy(phone, token);
+        strcpy(extra2, token);
 
         token = strtok(NULL, "|"); if (!token) continue;
         strcpy(role, token);
@@ -443,7 +443,7 @@ void approveApplication() {
                 FILE *restFile = fopen("data/restaurants.txt", "a");
                 if (restFile) {
                     fprintf(restFile, "%d|%s|%s|%s|%s|%s\n",
-                            newId, name, fileEmail, password, location, phone);
+                            newId, name, fileEmail, password, extra1, extra2);
                     fclose(restFile);
                     printf("Application approved → added to restaurants.\n");
                 }
@@ -451,8 +451,8 @@ void approveApplication() {
                 newId = generateNewID("data/delivery.txt", "delivery");
                 FILE *delFile = fopen("data/delivery.txt", "a");
                 if (delFile) {
-                    fprintf(delFile, "%d|%s|%s|%s|%s\n",
-                            newId, name, fileEmail, password, phone);
+                    fprintf(delFile, "%d|%s|%s|%s|%s|%s\n",
+                            newId, name, fileEmail, password, extra1, extra2); 
                     fclose(delFile);
                     printf("Application approved → added to delivery.\n");
                 }
@@ -460,8 +460,9 @@ void approveApplication() {
                 printf("Unknown role: %s (skipped)\n", role);
             }
         } else {
+            // Write back to applications.txt unchanged
             fprintf(temp, "%s|%s|%s|%s|%s|%s\n", 
-                    role, name, fileEmail, password, location, phone);
+                    name, fileEmail, password, extra1, extra2, role);
         }
     }
 
@@ -476,6 +477,7 @@ void approveApplication() {
         printf("Application not found.\n");
     }
 }
+
 
 void rejectApplication() {
     FILE *fp = fopen("data/applications.txt", "r");
@@ -496,37 +498,22 @@ void rejectApplication() {
     while (fgets(line, sizeof(line), fp)) {
         line[strcspn(line, "\n")] = '\0';
 
-        char *token;
-        char role[20], name[100], fileEmail[100], password[100];
-        char extra1[200], extra2[100];
+        char *name, *fileEmail, *password, *extra1, *extra2, *role;
+        name     = strtok(line, "|");
+        fileEmail= strtok(NULL, "|");
+        password = strtok(NULL, "|");
+        extra1   = strtok(NULL, "|");
+        extra2   = strtok(NULL, "|");
+        role     = strtok(NULL, "|");
 
-        token = strtok(line, "|"); if (!token) continue;
-        strcpy(role, token);
-
-        token = strtok(NULL, "|"); if (!token) continue;
-        strcpy(name, token);
-
-        token = strtok(NULL, "|"); if (!token) continue;
-        strcpy(fileEmail, token);
-
-        token = strtok(NULL, "|"); if (!token) continue;
-        strcpy(password, token);
-
-        token = strtok(NULL, "|"); if (!token) strcpy(extra1, ""); 
-        else strcpy(extra1, token);
-
-        token = strtok(NULL, "|"); if (!token) strcpy(extra2, ""); 
-        else strcpy(extra2, token);
-
-        if (strcmp(fileEmail, email) == 0) {
+        if (fileEmail && strcmp(fileEmail, email) == 0) {
             found = 1;
-            printf("Application rejected and removed.\n");
+            printf("Application for %s rejected and removed.\n", fileEmail);
         } else {
-            fprintf(temp, "%s|%s|%s|%s|%s|%s\n", 
-                    role, name, fileEmail, password, extra1, extra2);
+            fprintf(temp, "%s|%s|%s|%s|%s|%s\n",
+                    name, fileEmail, password, extra1, extra2, role);
         }
     }
-
     fclose(fp);
     fclose(temp);
 
@@ -535,9 +522,10 @@ void rejectApplication() {
         rename("data/temp.txt", "data/applications.txt");
     } else {
         remove("data/temp.txt");
-        printf("Application not found.\n");
+        printf("❌ Application not found.\n");
     }
 }
+
 
 
 void generateReports() {
@@ -587,7 +575,6 @@ void generateReports() {
 void copyFile(const char *src, const char *dest) {
     FILE *fSrc = fopen(src, "r");
     if (!fSrc) {
-        // silently skip if file doesn't exist
         return;
     }
 
