@@ -258,9 +258,10 @@ void updateMenuItem(int restaurantId) {
             printf("Enter new item name: ");
             fgets(item.itemName, 100, stdin) ;
             item.itemName[strcspn(item.itemName, "\n")] = '\0';
+            printf("Enter new price: ") ;
             while (scanf("%f", &item.price) != 1) {
                 printf("Invalid input. Please enter a number for the price (e.g., 7.50): ");
-                while (getchar() != '\n');
+                while (getchar() != '\n') ;
             }
             getchar() ;
             printf("Enter new stock: ");
