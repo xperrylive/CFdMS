@@ -1,12 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "student.h"
 #include "../utils.h"
 
 #define STUDENT_FILE "data/students.txt"
 #define MENU_FILE "data/menus.txt"
 #define ORDER_FILE "data/orders.txt"
+
+static int nextOrderID(void);
+
+static int nextOrderID(void) {
+    FILE *fp = fopen(ORDER_FILE, "r");
+    if (!fp) return 5000;  // start from 5000 if file doesn't exist
+
+    int maxID = 5000;
+    int oid, sID, rID, mID, qty;
+    char status[32], date[32];
+
+    while (fscanf(fp, "%d|%d|%d|%d|%d|%31[^|]|%31[^\n]\n",
+                  &oid, &sID, &rID, &mID, &qty, status, date) == 7) {
+        if (oid > maxID) maxID = oid;
+    }
+    fclose(fp);
+    return maxID + 1;
+}
 
 // ---------------- Student Main Menu ----------------
 void studentMainMenu(int studentID) {
@@ -261,8 +280,9 @@ void deleteProfile(int studentID) {
 
 // ---------------- Place Order ----------------
 void placeOrder(int studentID) {
-    FILE *menu = fopen(MENU_FILE, "r");
-    if (!menu) {
+    //Show menu
+    FILE *menuFile = fopen(MENU_FILE, "r");
+    if (!menuFile) {
         printf("Error opening menus file!\n");
         return;
     }
@@ -271,34 +291,147 @@ void placeOrder(int studentID) {
     int menuID, restID, stock;
     char item[50];
     double price;
-
-    while (fscanf(menu, "%d|%d|%49[^|]|%lf|%d\n",
+    while (fscanf(menuFile, "%d|%d|%49[^|]|%lf|%d\n",
                   &menuID, &restID, item, &price, &stock) == 5) {
         printf("%d) %s - RM %.2f (Stock: %d)\n", menuID, item, price, stock);
     }
-    fclose(menu);
+    fclose(menuFile);
 
-    int choice, qty;
+    //Read and validate Menu ID (must exist)
+    int choice = -1, qty = 0;
+    int chosenMenuID = -1, chosenRestID = -1, chosenStock = 0;
+    double chosenPrice = 0.0;
+    char chosenItem[50];
+    char buf[64];
 
-    printf("Enter Menu ID to order: ");
-    scanf("%d", &choice);
+    for (;;) {
+        printf("Enter Menu ID to order: ");
+        if (!fgets(buf, sizeof(buf), stdin)) return;
+        choice = atoi(buf);
 
-    printf("Enter Quantity: ");
-    scanf("%d", &qty);
+        menuFile = fopen(MENU_FILE, "r");
+        if (!menuFile) {
+            printf("Error opening menus file!\n");
+            return;
+        }
 
-    FILE *fp = fopen(ORDER_FILE, "a");
-    if (!fp) {
-        printf("Error opening orders file!\n");
+        int found = 0;
+        while (fscanf(menuFile, "%d|%d|%49[^|]|%lf|%d\n",
+                      &menuID, &restID, item, &price, &stock) == 5) {
+            if (menuID == choice) {
+                found = 1;
+                chosenMenuID = menuID;
+                chosenRestID = restID;
+                chosenStock  = stock;
+                chosenPrice  = price;
+                strcpy(chosenItem, item);
+                break;
+            }
+        }
+        fclose(menuFile);
+
+        if (found) break;
+        printf("Invalid Menu ID! Please choose a valid ID from the list.\n");
+    }
+
+    //Quantity (must be positive and <= stock)
+    for (;;) {
+        printf("Enter Quantity: ");
+        if (!fgets(buf, sizeof(buf), stdin)) return;
+        qty = atoi(buf);
+        if (qty <= 0) {
+            printf("Quantity must be positive.\n");
+            continue;
+        }
+        if (qty > chosenStock) {
+            printf("Sorry, only %d available. Try again.\n", chosenStock);
+            continue;
+        }
+        break;
+    }
+
+    double totalCost = chosenPrice * qty;
+
+    //Load student, check balance, then write back updated balance
+    FILE *sf = fopen(STUDENT_FILE, "r");
+    FILE *st = fopen("data/temp.txt", "w");
+    if (!sf || !st) {
+        if (sf) fclose(sf);
+        if (st) fclose(st);
+        printf("Error opening student file!\n");
         return;
     }
 
-    int orderID = generateNewID(ORDER_FILE, "order");
-    fprintf(fp, "%d|%d|%d|%d|%d|Pending|2025-08-21\n",
-            orderID, studentID, restID, choice, qty);
-    fclose(fp);
+    Student s;
+    int studentFound = 0;
+    while (fscanf(sf, "%d|%49[^|]|%99[^|]|%99[^|]|%lf|%19[^|]|%255[^\n]\n",
+                  &s.id, s.name, s.email, s.password,
+                  &s.balance, s.phone_number, s.address) == 7) {
+        if (s.id == studentID) {
+            studentFound = 1;
+            if (s.balance < totalCost) {
+                printf("Insufficient balance! Need RM %.2f, you have RM %.2f.\n",
+                       totalCost, s.balance);
+                fclose(sf); fclose(st);
+                remove("data/temp.txt");
+                return;
+            }
+            s.balance -= totalCost;
+        }
+        fprintf(st, "%d|%s|%s|%s|%.2f|%s|%s\n",
+                s.id, s.name, s.email, s.password,
+                s.balance, s.phone_number, s.address);
+    }
+    fclose(sf);
+    fclose(st);
+    remove(STUDENT_FILE);
+    rename("data/temp.txt", STUDENT_FILE);
 
-    printf("Order placed successfully! Order ID: %d\n", orderID);
+    if (!studentFound) {
+        printf("Student not found!\n");
+        return;
+    }
+
+    //Update stock in menus.txt
+    menuFile = fopen(MENU_FILE, "r");
+    FILE *menuTmp = fopen("data/menu_temp.txt", "w");
+    if (!menuFile || !menuTmp) {
+        if (menuFile) fclose(menuFile);
+        if (menuTmp) fclose(menuTmp);
+        printf("Error updating menu file!\n");
+        return;
+    }
+    while (fscanf(menuFile, "%d|%d|%49[^|]|%lf|%d\n",
+                  &menuID, &restID, item, &price, &stock) == 5) {
+        if (menuID == chosenMenuID) stock -= qty;
+        fprintf(menuTmp, "%d|%d|%s|%.2f|%d\n", menuID, restID, item, price, stock);
+    }
+    fclose(menuFile);
+    fclose(menuTmp);
+    remove(MENU_FILE);
+    rename("data/menu_temp.txt", MENU_FILE);
+
+    //Append order with a safe, non-negative ID and today’s date
+    int orderID = nextOrderID();
+
+    time_t t = time(NULL);
+    struct tm *lt = localtime(&t);
+    char date[20];
+    strftime(date, sizeof(date), "%Y-%m-%d", lt);
+
+    FILE *of = fopen(ORDER_FILE, "a");
+    if (!of) {
+        printf("Error opening orders file!\n");
+        return;
+    }
+    fprintf(of, "%d|%d|%d|%d|%d|Pending|%s\n",
+            orderID, studentID, chosenRestID, chosenMenuID, qty, date);
+    fclose(of);
+
+    printf("Order placed successfully! Order ID: %d, Total: RM %.2f\n",
+           orderID, totalCost);
 }
+
 
 // ---------------- View Order History ----------------
 void viewOrderHistory(int studentID) {
