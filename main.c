@@ -85,9 +85,11 @@ void loginUser()
     
             } else if (strcmp(result.role, "restaurant") == 0) {
                 restaurantmain(result.id);
+                return;
     
             } else if (strcmp(result.role, "delivery") == 0) {
                 deliveryMainMenu(result.id);
+                return;
             }
             else{
                 printf("something went wrong. please contatct the administration regarding your role.\n");

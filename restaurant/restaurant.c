@@ -35,7 +35,7 @@ void restaurantmain(int restaurantId) {
             trackInventory(restaurantId);
         } else if (option == 5) {
             printf("Exiting program.\n");
-            break;
+            return;
         } else {
             printf("Invalid option... Please try again.\n");
         }
