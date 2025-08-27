@@ -151,7 +151,7 @@ void updateDeliveryStatus(int deliveryID) {
             newStatus[strcspn(newStatus,"\n")] = 0;
             
             strcpy(d.status, newStatus);
-            if (strcmp(newStatus, "Delivered") == 0) {
+            if (strcmp(newStatus, "Delivered") == 0 || strcmp(newStatus, "delivered") == 0) {
                 d.earnings += 5.0; // Fixed earnings for delivery
             }
             fprintf(out, "%d|%d|%d|%s|%.2f\n",
