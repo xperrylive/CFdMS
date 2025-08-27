@@ -230,7 +230,7 @@ void updateUser() {
             char newLocation[200] = "";
             char newStatus[50] = "";
 
-            printf("Enter new name (leave blank to keep): ");
+            printf("\nEnter new name (leave blank to keep): ");
             fgets(newName, sizeof(newName), stdin);
             newName[strcspn(newName, "\n")] = '\0';
 
@@ -243,12 +243,12 @@ void updateUser() {
 
                 if (strlen(newName) > 0) strcpy(name, newName);
 
-                printf("Enter new phone (leave blank to keep): ");
+                printf("\nEnter new phone (leave blank to keep): ");
                 fgets(newPhone, sizeof(newPhone), stdin);
                 newPhone[strcspn(newPhone, "\n")] = '\0';
                 if (strlen(newPhone) > 0) strcpy(phone, newPhone);
 
-                printf("Enter new address (leave blank to keep): ");
+                printf("\nEnter new address (leave blank to keep): ");
                 fgets(newAddress, sizeof(newAddress), stdin);
                 newAddress[strcspn(newAddress, "\n")] = '\0';
                 if (strlen(newAddress) > 0) strcpy(address, newAddress);
@@ -264,12 +264,12 @@ void updateUser() {
 
                 if (strlen(newName) > 0) strcpy(name, newName);
 
-                printf("Enter new location (leave blank to keep): ");
+                printf("\nEnter new location (leave blank to keep): ");
                 fgets(newLocation, sizeof(newLocation), stdin);
                 newLocation[strcspn(newLocation, "\n")] = '\0';
                 if (strlen(newLocation) > 0) strcpy(location, newLocation);
 
-                printf("Enter new phone (leave blank to keep): ");
+                printf("\nEnter new phone (leave blank to keep): ");
                 fgets(newPhone, sizeof(newPhone), stdin);
                 newPhone[strcspn(newPhone, "\n")] = '\0';
                 if (strlen(newPhone) > 0) strcpy(phone, newPhone);
@@ -286,7 +286,7 @@ void updateUser() {
 
                 if (strlen(newName) > 0) strcpy(name, newName);
 
-                printf("Enter new status (leave blank to keep): ");
+                printf("\nEnter new status (leave blank to keep): ");
                 fgets(newStatus, sizeof(newStatus), stdin);
                 newStatus[strcspn(newStatus, "\n")] = '\0';
                 if (strlen(newStatus) > 0) strcpy(status, newStatus);
@@ -359,7 +359,7 @@ void deleteUser() {
 
         if (id == userId) {
             found = 1;
-            printf("✅ User with ID %d deleted.\n", userId);
+            printf(" User with ID %d deleted.\n", userId);
         } else {
             fputs(line, temp);
         }
@@ -373,7 +373,7 @@ void deleteUser() {
         rename("data/temp.txt", filename);
     } else {
         remove("data/temp.txt");
-        printf("❌ User not found!\n");
+        printf(" User not found!\n");
     }
 }
 
@@ -449,7 +449,7 @@ void approveApplication() {
                     fprintf(restFile, "%d|%s|%s|%s|%s|%s\n",
                             newId, name, fileEmail, password, extra1, extra2);
                     fclose(restFile);
-                    printf("Application approved → added to restaurants.\n");
+                    printf("Application approved --> added to restaurants.\n");
                 }
             } else if (strcmp(role, "delivery") == 0) {
                 newId = generateNewID("data/delivery.txt", "delivery");
@@ -458,7 +458,7 @@ void approveApplication() {
                     fprintf(delFile, "%d|%s|%s|%s|%s|%s\n",
                             newId, name, fileEmail, password, extra1, extra2); 
                     fclose(delFile);
-                    printf("Application approved → added to delivery.\n");
+                    printf("Application approved --> added to delivery.\n");
                 }
             } else {
                 printf("Unknown role: %s (skipped)\n", role);
@@ -526,7 +526,7 @@ void rejectApplication() {
         rename("data/temp.txt", "data/applications.txt");
     } else {
         remove("data/temp.txt");
-        printf("❌ Application not found.\n");
+        printf(" Application not found.\n");
     }
 }
 
