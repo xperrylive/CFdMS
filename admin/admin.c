@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include "admin.h"
 #include "../utils.h"
 #define LINE_SIZE 256
@@ -82,14 +81,19 @@ void applicationManagementMenu() {
     buffer[strcspn(buffer, "\n")] = '\0';
     choice = atoi(buffer);
 
-    if (choice == 1) {
-        viewApplications();
-    } else if (choice == 2) {
-        approveApplication();
-    } else if (choice == 3) {
-        rejectApplication();
-    } else {
-        printf("Invalid choice!\n");
+
+    switch (choice){
+        case 1:
+            viewApplications();
+            break;
+        case 2:
+            approveApplication();
+            break;
+        case 3:
+            rejectApplication();
+            break;
+        default:
+            printf("Invalid choice!\n");
     }
 }
 
@@ -570,6 +574,7 @@ void generateReports() {
     printf("Total Users: %d\n", studentCount + restaurantCount + deliveryCount);
     printf("=====================================\n");
 }
+
 
 // helper function to copy one file
 void copyFile(const char *src, const char *dest) {
